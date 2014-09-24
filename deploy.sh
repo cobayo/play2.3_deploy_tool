@@ -29,6 +29,8 @@ ZIP_FILE=./target/universal/${PROJECT_NAME}-${VERSION}.zip
 #解凍先フォルダ名
 FOLRDER_NAME=${PROJECT_NAME}-${VERSION}
 
+##### 実行 #####
+
 # 配布用zip 作成。新たにjarを落とす必要がないときは sbt publish-local dist でも可
 sbt dist
 
