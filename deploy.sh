@@ -19,8 +19,8 @@ PROJECT_NAME=(your_project)
 # build.sbt　に記載してあるversion。特別な理由がなければ prod などに固定しておくことを推奨
 VERSION=(your_version)
 
-#本番起動場所 /usr/local/play2 など
-APP_PATH=(your_app_path)
+#ソース場所 /home/play2/my_project など
+PROJECT_PATH=(your_app_path)
 
 ##### 実行準備 #####
 # sbt dist　を実行すると./target/universal 以下 にファイルがあるはず
@@ -40,32 +40,32 @@ if [ ! -f ${ZIP_FILE} ] ; then
     exit 1
 fi
 
+# 前回のJar群を消しておく。当然サーバー上のアプリケーションに影響はない。
+rm -rf ${FOLRDER_NAME}
+
 # unzip で解凍
 unzip -o ${ZIP_FILE}
 
-# 移動。ソース置き場( git pull 先)と本番サーバーは同じ場所。違う場合はここから先は fabric などで操作するように変更する必要がある。
-# APP_PATH 以下のファイルを消しても更新しても、当然サーバー上のアプリケーションに影響はない。
-cp -rf ./${FOLRDER_NAME}/* ${APP_PATH}/
-rm -rf ${FOLRDER_NAME}
-rm ${ZIP_FILE}
+# 一つ前のzipは念のためとっておく
+mv ${ZIP_FILE} ${ZIP_FILE}.bak
 
 # 起動ファイルとjar群が出来ていなければ終了
-if [ ! -f ${APP_PATH}/bin/${PROJECT_NAME} ]; then
-    echo "Failed to create ${APP_PATH}/bin/${PROJECT_NAME} \n"
+if [ ! -f ${PROJECT_PATH}/${FOLRDER_NAME}/bin/${PROJECT_NAME} ]; then
+    echo "Failed to create ${PROJECT_PATH}/${FOLRDER_NAME}/bin/${PROJECT_NAME} \n"
     exit 1
 fi
 
 # バックグラウンドで動かすと自動的に RUNNING_PID を吐くのでそれを見る。
-if [ -f ${APP_PATH}/RUNNING_PID ]; then
-    kill -9 $(cat ${APP_PATH}/RUNNING_PID)
-    rm ${APP_PATH}/RUNNING_PID
+if [ -f ${PROJECT_PATH}/${FOLRDER_NAME}/RUNNING_PID ]; then
+    kill $(cat ${PROJECT_PATH}/${FOLRDER_NAME}/RUNNING_PID)
+    rm -f ${PROJECT_PATH}/${FOLRDER_NAME}/RUNNING_PID
 fi
 
 # 起動
-${APP_PATH}/bin/${PROJECT_NAME} &
+${PROJECT_PATH}/${FOLRDER_NAME}/bin/${PROJECT_NAME} &
 
 if [ $? != 0 ]; then
-    echo "Failt tp Launch. please retry"
+    echo "Failed to Launch. please retry"
     exit 1
 fi
 
